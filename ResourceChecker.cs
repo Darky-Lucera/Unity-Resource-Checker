@@ -9,16 +9,16 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 
-
 public class TextureDetails
 {
-	public bool isCubeMap;
-	public int memSizeKB;
-	public Texture texture;
-	public TextureFormat format;
-	public int mipMapCount;
-	public List<Object> FoundInMaterials=new List<Object>();
-	public List<Object> FoundInRenderers=new List<Object>();
+	public bool				isCubeMap;
+	public int				memSizeKB;
+	public Texture			texture;
+	public TextureFormat	format;
+	public int				mipMapCount;
+	public List<Object>		FoundInMaterials=new List<Object>();
+	public List<Object>		FoundInRenderers=new List<Object>();
+
 	public TextureDetails()
 	{
 		
@@ -67,9 +67,9 @@ public class ResourceChecker : EditorWindow {
 	float ThumbnailWidth=40;
 	float ThumbnailHeight=40;
 	
-	List<TextureDetails> ActiveTextures=new List<TextureDetails>();
-	List<MaterialDetails> ActiveMaterials=new List<MaterialDetails>();
-	List<MeshDetails> ActiveMeshDetails=new List<MeshDetails>();
+	List<TextureDetails> ActiveTextures   = new List<TextureDetails>();
+	List<MaterialDetails> ActiveMaterials = new List<MaterialDetails>();
+	List<MeshDetails> ActiveMeshDetails   = new List<MeshDetails>();
 	
 	Vector2 textureListScrollPos=new Vector2(0,0);
 	Vector2 materialListScrollPos=new Vector2(0,0);
@@ -168,9 +168,11 @@ public class ResourceChecker : EditorWindow {
 				return 8;
 			case TextureFormat.BGRA32://	 Format returned by iPhone camera
 				return 32;
-			case TextureFormat.ATF_RGB_DXT1://	 Flash-specific RGB DXT1 compressed color texture format.
-			case TextureFormat.ATF_RGBA_JPG://	 Flash-specific RGBA JPG-compressed color texture format.
-			case TextureFormat.ATF_RGB_JPG://	 Flash-specific RGB JPG-compressed color texture format.
+
+			default:
+			//case TextureFormat.ATF_RGB_DXT1://	 Flash-specific RGB DXT1 compressed color texture format.
+			//case TextureFormat.ATF_RGBA_JPG://	 Flash-specific RGBA JPG-compressed color texture format.
+			//case TextureFormat.ATF_RGB_JPG://	 Flash-specific RGB JPG-compressed color texture format.
 				return 0; //Not supported yet
 		}
 		return 0;
@@ -436,6 +438,8 @@ public class ResourceChecker : EditorWindow {
 				tMaterialDetails.FoundInRenderers.Add(renderer);
 			}
 		}
+		if(ActiveMaterials.Count > 1)
+			ActiveMaterials = ActiveMaterials.GroupBy(o => o.material.GetInstanceID()).Select(x => x.First()).ToList();
 		
 		foreach (MaterialDetails tMaterialDetails in ActiveMaterials)
 		{
@@ -458,7 +462,9 @@ public class ResourceChecker : EditorWindow {
 				ActiveTextures.Add(tTextureDetail);
 			}
 		}
-		
+		if(ActiveTextures.Count > 1)
+			ActiveTextures = ActiveTextures.GroupBy(o => o.texture.GetInstanceID()).Select(x => x.First()).ToList();
+
 		
 		MeshFilter[] meshFilters = (MeshFilter[]) FindObjectsOfType(typeof(MeshFilter));
 		
@@ -495,6 +501,8 @@ public class ResourceChecker : EditorWindow {
 				tMeshDetails.FoundInSkinnedMeshRenderer.Add(tSkinnedMeshRenderer);
 			}
 		}
+		if(ActiveMeshDetails.Count > 1)
+			ActiveMeshDetails = ActiveMeshDetails.GroupBy(o => o.mesh.GetInstanceID()).Select(x => x.First()).ToList();
 		
 	
 		TotalTextureMemory=0;
